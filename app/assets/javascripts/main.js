@@ -1,13 +1,14 @@
 $(document).on('page:change', function () {
 
+$("#start-game").click(function () {
+  App.games.perform("find_match");
+  $(this).addClass("hidden");
+});
+
 $(".fog").click(function () {
   x = parseInt($(this).attr("data-x"));
   y = parseInt($(this).attr("data-y"));
   sweep(y, x, this);
-});
-
-App.games.connected(function() {
-  alert();
 });
 
 function clearBlank(y, x){
