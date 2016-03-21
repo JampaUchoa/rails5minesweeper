@@ -1,0 +1,11 @@
+<div class="top">
+</div>
+<div class="middle">
+  <div id="start-game" class="states"> START GAME </div>
+  <div id="searching-game" class="states" class="hidden"> Searching </div>
+  <div id="accept-game" class="states" class="hidden"> ACCEPT </div>
+  <table id="game" align="center">
+  </table>
+</div>
+
+<%= $redis.hgetall(@current_user.uuid) %>
