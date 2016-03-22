@@ -9,7 +9,7 @@ html{
   margin: 50px;
 }
 .middle{
-  max-width: 550px;
+  max-width: 750px;
   margin: 0 auto;
 }
 
@@ -45,5 +45,36 @@ html{
   .swept{
     border: 1px solid rgba(52, 84, 84, 0.1);
     background-color: #B0E2FF;
+  }
+}
+
+.game-stats{
+  height: 100px;
+  border: 1px;
+  background-color: #fff;
+
+//  background-color: rgba(0, 0, 0, 0.65);
+//  color: #eee;
+  padding: 7px;
+  img{
+    height: 100px;
+    width: 100px;
+    //border-radius: 50%;
+    //background-color: rgba(0, 0, 0, 0.5);
+    vertical-align: text-top;
+    float: left;
+  }
+  .player-stats{
+    display: inline-block;
+    margin: 5px 15px;
+  }
+  .player-name{
+    font-size: 20px;
+    display: block;
+  }
+  .player-card{
+    display: inline-block;
+    width: 50%;
+    float: left;
   }
 }

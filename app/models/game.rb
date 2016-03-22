@@ -1,14 +1,18 @@
 class Game < ApplicationRecord
 
   def self.start(uuid1, uuid2)
+    size_x = 16
+    size_y = 16
+    bombs = (size_x * size_y) / 5.75
+
     game = Game.new
-    game.generate_board(12,12,25)
+    game.generate_board(size_x, size_y,bombs)
     game.save
 
     red, blue = [uuid1, uuid2].shuffle
 
-    ActionCable.server.broadcast "player_#{red}", {context: "game_start", size_x: 12, size_y: 12, bombs: 25, team: "red"}
-    ActionCable.server.broadcast "player_#{blue}", {context: "game_start", size_x: 12, size_y: 12, bombs: 25, team: "blue"}
+    ActionCable.server.broadcast "player_#{red}", {context: "game_start", size_x: size_x, size_y: size_y, bombs: bombs, team: "red"}
+    ActionCable.server.broadcast "player_#{blue}", {context: "game_start", size_x: size_x, size_y: size_y, bombs: bombs, team: "blue"}
 
     $redis.hmset(uuid1, "opponent_uuid", uuid2,
                         "game_id", game.id,
@@ -18,9 +22,10 @@ class Game < ApplicationRecord
                         "game_id", game.id,
                         "state", "in_game")
 
-
     $redis.hmset(game.id, "board", game.board.to_json,
-                          "bombs", 25,
+                          "bombs", bombs,
+                          "size_y", size_y,
+                          "size_x", size_x,
                           "player_red", red,
                           "player_blue", blue,
                           "current_player", blue,
@@ -57,11 +62,15 @@ class Game < ApplicationRecord
     game.winner_score = $redis.hget(game, "#{uuid}_score")
     game.save
 
+    ActionCable.server.broadcast "player_#{uuid}", {context: "game_end", winner: "you"}
+    ActionCable.server.broadcast "player_#{opponent_uuid}", {context: "game_end", winner: "opponent"}
+
+    opponent_uuid = $redis.hget(uuid, "opponent_uuid")
+
     $redis.hmset(uuid, "game_id", nil,
                        "opponent_uuid", nil,
                        "state", "idle")
 
-    opponent_uuid = $redis.hget(uuid, "opponent_uuid")
     $redis.hmset(opponent_uuid, "game_id", nil,
                                 "opponent_uuid", nil,
                                 "state", "idle")

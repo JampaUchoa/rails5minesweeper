@@ -4,9 +4,13 @@ $("#start-game").click(function () {
   App.games.perform("find_match");
   $(this).addClass("hidden");
   $("#searching-game").removeClass("hidden");
+  $("#game-end").addClass("hidden");
+  $(".you-win").addClass("hidden");
+  $(".opponent-win").addClass("hidden");
+  $("tr").remove();
 });
 
-$( ".middle" ).on( "click", ".fog", function() {
+$(".middle").on( "click", ".fog", function() {
   x = parseInt($(this).attr("data-x"));
   y = parseInt($(this).attr("data-y"));
   App.games.perform("move", {x: x, y: y});
