@@ -1,34 +1,16 @@
-$(document).on('page:change', function () {
+$(document).ready(function () {
 
 $("#start-game").click(function () {
   App.games.perform("find_match");
   $(this).addClass("hidden");
+  $("#searching-game").removeClass("hidden");
 });
 
-$(".fog").click(function () {
+$( ".middle" ).on( "click", ".fog", function() {
   x = parseInt($(this).attr("data-x"));
   y = parseInt($(this).attr("data-y"));
-  sweep(y, x, this);
+  App.games.perform("move", {x: x, y: y});
 });
-
-function clearBlank(y, x){
-  for(i = -1; i <= 1; i++){
-    pos_y = i + y;
-    if (!boundCheck(pos_y)){
-      continue;
-    }
-    for(j = -1; j <= 1; j++){
-      pos_x = j + x;
-      if (!boundCheck(pos_x)){
-        continue;
-      }
-        if (!$("td[data-x='"+ pos_x +"'][data-y='"+ pos_y +"']").hasClass("swept")){
-        console.log("Triyng " + pos_y + "," + pos_x);
-        sweep(pos_y, pos_x);
-      }
-    }
-  }
-}
 
 function boundCheck(coord){
   coord < size && coord >= 0;

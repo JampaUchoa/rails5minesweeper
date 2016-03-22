@@ -11,23 +11,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160319173012) do
+ActiveRecord::Schema.define(version: 20160322011144) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "games", force: :cascade do |t|
-    t.text     "board",                   array: true
-    t.text     "fog",                     array: true
+    t.text     "board",                     array: true
+    t.text     "fog",                       array: true
     t.integer  "size_x"
     t.integer  "size_y"
     t.integer  "bombs"
     t.integer  "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.string   "winner_uuid"
+    t.integer  "winner_score"
   end
 
   add_index "games", ["user_id"], name: "index_games_on_user_id", using: :btree
+  add_index "games", ["winner_uuid"], name: "index_games_on_winner_uuid", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.text     "uuid"

@@ -10,6 +10,11 @@ class GamesChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
     $redis.hset(uuid, "state", "offline")
     Matchmake.remove(uuid)
+
+    opponent_uuid = $redis.hget(uuid, "opponent_uuid")
+    if !opponent_uuid.nil?
+      Game.winner(opponent_uuid)
+    end
   end
 
   def find_match
@@ -20,6 +25,10 @@ class GamesChannel < ApplicationCable::Channel
   def find_cancel
     $redis.hset(uuid, "state", "idle")
     Matchmake.remove(uuid)
+  end
+
+  def move(data)
+    Game.move(uuid, data)
   end
 
 end
