@@ -43,5 +43,23 @@ App.games = App.cable.subscriptions.create("GamesChannel", {
         $(".opponent-win").removeClass("hidden");
       }
     }
+    if (data.context == "your_turn") {
+      if (data.stat == "start"){
+        $("#game").addClass("active");
+      }
+      else{
+        $("#game").removeClass("active");
+      }
+    }
+    if (data.context == "point") {
+      if (data.stat == "you"){
+        counter = $(".bombs-count[data-player='self']")
+        counter.text(parseInt(counter.text()) + 1);
+      }
+      else{
+        counter = $(".bombs-count[data-player='opponent']")
+        counter.text(parseInt(counter.text()) + 1);
+      }
+    }
   }
 });

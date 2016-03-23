@@ -9,10 +9,8 @@ class Game < ApplicationRecord
     game.generate_board(size_x, size_y,bombs)
     game.save
 
-    red, blue = [uuid1, uuid2].shuffle
-
-    ActionCable.server.broadcast "player_#{red}", {context: "game_start", size_x: size_x, size_y: size_y, bombs: bombs, team: "red"}
-    ActionCable.server.broadcast "player_#{blue}", {context: "game_start", size_x: size_x, size_y: size_y, bombs: bombs, team: "blue"}
+    ActionCable.server.broadcast "player_#{uuid1}", {context: "game_start", size_x: size_x, size_y: size_y, bombs: bombs}
+    ActionCable.server.broadcast "player_#{uuid2}", {context: "game_start", size_x: size_x, size_y: size_y, bombs: bombs}
 
     $redis.hmset(uuid1, "opponent_uuid", uuid2,
                         "game_id", game.id,
@@ -26,11 +24,12 @@ class Game < ApplicationRecord
                           "bombs", bombs,
                           "size_y", size_y,
                           "size_x", size_x,
-                          "player_red", red,
-                          "player_blue", blue,
-                          "current_player", blue,
-                          "#{red}_score", 0,
-                          "#{blue}_score", 0)
+                          "current_player", uuid1,
+                          "#{uuid1}_score", 0,
+                          "#{uuid2}_score", 0)
+
+  ActionCable.server.broadcast "player_#{uuid1}", {context: "your_turn", stat: "start"}
+
   end
 
   def self.move(uuid,data)
@@ -42,17 +41,40 @@ class Game < ApplicationRecord
     if game.present? && current_player == uuid
       board = eval($redis.hget(game, "board"))
       field = board[y][x]
-      ActionCable.server.broadcast "player_#{uuid}", {context: "board_reveal", pos_x: x, pos_y: y, field_obj: field}
-      ActionCable.server.broadcast "player_#{opponent_uuid}", {context: "board_reveal", pos_x: x, pos_y: y, field_obj: field}
+      Game.reveal(uuid,opponent_uuid, x, y, field)
       if field == "b"
         $redis.hincrby(game, "#{uuid}_score", 1)
-        if $redis.hget(game, "#{uuid}_score") > ($redis.hget(game, "bombs").to_i / 2.0)
+        ActionCable.server.broadcast "player_#{uuid}", {context: "point", stat: "you"}
+        ActionCable.server.broadcast "player_#{opponent_uuid}", {context: "point", stat: "opponent"}
+        if $redis.hget(game, "#{uuid}_score").to_i > ($redis.hget(game, "bombs").to_i / 2.0)
           Game.winner(uuid)
         end
       else
+        if field == "0"
+          Game.flood_fill(board, x, y, uuid, opponent_uuid)
+        end
+        ActionCable.server.broadcast "player_#{opponent_uuid}", {context: "your_turn", stat: "start"}
+        ActionCable.server.broadcast "player_#{uuid}", {context: "your_turn", stat: "end"}
         $redis.hset(game, "current_player", opponent_uuid)
       end
     end
+  end
+
+  def self.flood_fill(board, x, y, uuid1, uuid2)
+    return if board[y][x] == ""
+    Game.reveal(uuid1,uuid2, x, y, board[y][x])
+    if board[y][x] == "0"
+      board[y][x] = ""
+      Game.flood_fill(board, x + 1, y, uuid1, uuid2)
+      Game.flood_fill(board, x - 1, y, uuid1, uuid2)
+      Game.flood_fill(board, x, y + 1, uuid1, uuid2)
+      Game.flood_fill(board, x, y - 1, uuid1, uuid2)
+    end
+  end
+
+  def self.reveal(uuid1,uuid2, x, y, content)
+    ActionCable.server.broadcast "player_#{uuid1}", {context: "board_reveal", pos_x: x, pos_y: y, field_obj: content}
+    ActionCable.server.broadcast "player_#{uuid2}", {context: "board_reveal", pos_x: x, pos_y: y, field_obj: content}
   end
 
   def self.winner(uuid)

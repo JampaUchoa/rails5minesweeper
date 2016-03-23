@@ -25,27 +25,35 @@ html{
 }
 
 #game{
+
   td{
     width: 35px;
     height: 35px;
     display: inline-block;
     text-align: center;
+    -webkit-user-select: none;
   }
   vertical-align: middle;
   .fog{
     border: 1px solid rgba(3, 3, 3, 0.1);
     background-color: rgb(121, 205, 255);
     transition: all 0.2s linear;
-    cursor: pointer;
   }
-  .fog:hover{
-    background-color: #4ca6ff;
-    border: 1px solid rgba(3, 3, 3, 0.2);
-  }
+
   .swept{
     border: 1px solid rgba(52, 84, 84, 0.1);
     background-color: #B0E2FF;
   }
+}
+
+.active{
+
+  .fog:hover{
+    background-color: #4ca6ff;
+    border: 1px solid rgba(3, 3, 3, 0.2);
+    cursor: pointer;
+  }
+
 }
 
 .game-stats{
