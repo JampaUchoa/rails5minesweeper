@@ -1,24 +1,7 @@
-## README
+## A minesweeper multiplayer game on rails 5, finally! (not really)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+-A quick implementation of websockets with the new version of Ruby on Rails 5, using the new ActionCable.
 
-Things you may want to cover:
+-This uses HTML tables to play the game (who needs <canvas> anyway?).
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+-This require redis-server to be on, and of course the beta version (as of apr/2016) of Rails.
